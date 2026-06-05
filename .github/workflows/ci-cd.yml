@@ -63,8 +63,8 @@ jobs:
         uses: azure/docker-login@v1
         with:
           login-server: ${{ env.REGISTRY }}
-          username: ${{ secrets.AZURE_CLIENT_ID }}
-          password: ${{ secrets.AZURE_CLIENT_SECRET }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & push API image
         run: |
@@ -79,43 +79,48 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.DASHBOARD_IMAGE }}:latest
 
   # ────────────────────────────────────────────────────────────────────────────
-  # JOB 3 — Deploy to Azure Container Apps  (main branch only)
+  # NOTE : Le job de déploiement automatique est désactivé ci-dessous car
+  # les comptes Azure Student n'ont souvent pas les privilèges suffisants
+  # pour créer un Service Principal (App Registration) dans l'annuaire de l'école.
+  # Le déploiement s'effectue manuellement depuis votre machine locale ou
+  # en redémarrant l'application sur le portail Azure.
   # ────────────────────────────────────────────────────────────────────────────
-  deploy:
-    name: 🚀 Deploy to Azure
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
+  # deploy:
+  #   name: 🚀 Deploy to Azure
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   if: github.ref == 'refs/heads/main'
+  #
+  #   steps:
+  #     - name: Azure Login
+  #       uses: azure/login@v2
+  #       with:
+  #         creds: >-
+  #           {
+  #             "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
+  #             "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
+  #             "tenantId": "${{ secrets.AZURE_TENANT_ID }}",
+  #             "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+  #           }
+  #
+  #     - name: Update API Container App
+  #       run: |
+  #         az containerapp update \
+  #           --name devops-monitor-api \
+  #           --resource-group devops-monitor-rg \
+  #           --image ${{ env.REGISTRY }}/${{ env.API_IMAGE }}:${{ github.sha }}
+  #
+  #     - name: Update Dashboard Container App
+  #       run: |
+  #         az containerapp update \
+  #           --name devops-monitor-dashboard \
+  #           --resource-group devops-monitor-rg \
+  #           --image ${{ env.REGISTRY }}/${{ env.DASHBOARD_IMAGE }}:${{ github.sha }}
+  #
+  #     - name: Show deployed URLs
+  #       run: |
+  #         echo "API URL:"
+  #         az containerapp show --name devops-monitor-api --resource-group devops-monitor-rg --query "properties.configuration.ingress.fqdn" -o tsv
+  #         echo "Dashboard URL:"
+  #         az containerapp show --name devops-monitor-dashboard --resource-group devops-monitor-rg --query "properties.configuration.ingress.fqdn" -o tsv
 
-    steps:
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: >-
-            {
-              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
-              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
-              "tenantId": "${{ secrets.AZURE_TENANT_ID }}",
-              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-            }
-
-      - name: Update API Container App
-        run: |
-          az containerapp update \
-            --name devops-monitor-api \
-            --resource-group devops-monitor-rg \
-            --image ${{ env.REGISTRY }}/${{ env.API_IMAGE }}:${{ github.sha }}
-
-      - name: Update Dashboard Container App
-        run: |
-          az containerapp update \
-            --name devops-monitor-dashboard \
-            --resource-group devops-monitor-rg \
-            --image ${{ env.REGISTRY }}/${{ env.DASHBOARD_IMAGE }}:${{ github.sha }}
-
-      - name: Show deployed URLs
-        run: |
-          echo "API URL:"
-          az containerapp show --name devops-monitor-api --resource-group devops-monitor-rg --query "properties.configuration.ingress.fqdn" -o tsv
-          echo "Dashboard URL:"
-          az containerapp show --name devops-monitor-dashboard --resource-group devops-monitor-rg --query "properties.configuration.ingress.fqdn" -o tsv
