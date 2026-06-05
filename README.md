@@ -78,10 +78,9 @@ make logs
 
 ## URLs live (Azure)
 
-> À remplir après le déploiement
+- **API (FastAPI Docs)** : [https://devops-monitor-api.grayforest-57e15922.francecentral.azurecontainerapps.io/docs](https://devops-monitor-api.grayforest-57e15922.francecentral.azurecontainerapps.io/docs)
+- **Dashboard (Streamlit)** : [https://devops-monitor-dashboard.grayforest-57e15922.francecentral.azurecontainerapps.io](https://devops-monitor-dashboard.grayforest-57e15922.francecentral.azurecontainerapps.io)
 
-- **API** : `https://<api-url>.azurecontainerapps.io/docs`
-- **Dashboard** : `https://<dashboard-url>.azurecontainerapps.io`
 
 ## Tests
 
